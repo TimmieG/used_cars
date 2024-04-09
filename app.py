@@ -11,6 +11,10 @@ import warnings
 # Ignore specific warnings
 warnings.filterwarnings("ignore")
 
+
+# importing dataset
+df = pd.read_csv('dataset/car_recommend.csv')
+
 def home_page():
     st.title("Used Car Marketplace")
     st.write("Welcome to the Used Car Marketplace!")
@@ -24,13 +28,30 @@ def home_page():
         st.session_state.page = "seller"
 
 def buyer_page():
-    st.write("# Buyer Page")
-    estimated_range = st.text_input("Enter estimated buying range:", "")
-    if st.button("Submit"):
-        st.write("Estimated Buying Range:", estimated_range)
-
     if st.button("Back to Home"):
         st.session_state.page = "home"
+
+    st.write("# Buyer Page")
+    st.write('---')
+    st.write("### Best Cars to buy on given states:")
+    estimated_range = st.text_input("Enter estimated buying range (min, max):", "")
+    if estimated_range:
+        min_price, max_price = map(int, estimated_range.split(','))
+    
+    state_info = st.selectbox("State:", ['select your state','ca', 'sc', 'pa', 'il', 'wi', 'az', 'or', 'mt', 'id', 'va', 'al', 'tx', 'ky', 'nc',
+                                     'co', 'wy', 'fl', 'oh', 'la', 'ga', 'mn', 'de', 'in', 'mi', 'wa', 'nm', 'nv', 'tn',
+                                     'nd', 'nj', 'ok', 'dc', 'ny', 'md', 'ms', 'mo', 'ia', 'ar', 'ks', 'me', 'ak', 'ri',
+                                     'ne', 'ct', 'vt', 'nh', 'sd', 'ma', 'wv', 'ut', 'hi'], index=0)
+    if st.button("Submit"):
+        best_car = recommend_car(min_price,max_price,state_info, df)
+        st.write(" Best available cars on that price range are :", best_car)
+    
+    st.write('---')
+
+    st.write("### Looking for similar cars:")
+
+
+    
 
 def seller_page():
     st.write("# Seller Page")
@@ -156,8 +177,23 @@ def user_input_features(user_input):
     features = pd.DataFrame(user_input, index=[0])
     return features
 
+@st.cache_data
+def recommend_car(min_price, max_price,state, dataset):
+    # Filter cars within the price range
+    filtered_cars = dataset[(dataset['price'] >= min_price) & (dataset['price'] <= max_price) & (dataset['state'] == state) ]
 
+    if filtered_cars.empty:
+        print("No cars found within the given price range.")
+        return None
 
+    # Sort cars based on optimal value (e.g., manufacturing year, distance traveled, car condition)
+    sorted_cars = filtered_cars.sort_values(by=['year', 'odometer'], ascending=False)
+
+    # Return the car with the best optimal value
+    best_car = sorted_cars.iloc[0:5]
+    return best_car
+
+@st.cache_data
 def encode(data):
     '''function to encode data''' 
     # dropping numerical features
@@ -174,11 +210,13 @@ def encode(data):
     return data_encoded
 
 # Load pickle object function
+@st.cache_resource
 def load_pickle(file):
     with open(file, 'rb') as f:
         loaded_object = pickle.load(f)
     return loaded_object
 
+@st.cache_data
 def shap_explanation(model, X):
     explainer = shap.Explainer(model)
     shap_values = explainer.shap_values(X)
