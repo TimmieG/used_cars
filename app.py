@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
 import matplotlib.pyplot as plt
 import pickle
+from notebook.recommend import recommend_func
 
 import warnings
 
@@ -13,7 +14,7 @@ warnings.filterwarnings("ignore")
 
 
 # importing dataset
-df = pd.read_csv('dataset/car_recommend.csv')
+df = pd.read_csv('dataset/car_data.csv')
 
 def home_page():
     st.title("Used Car Marketplace")
@@ -33,22 +34,37 @@ def buyer_page():
 
     st.write("# Buyer Page")
     st.write('---')
-    st.write("### Best Cars to buy on given states:")
+    st.write("### Best Cars to buy on :")
     estimated_range = st.text_input("Enter estimated buying range (min, max):", "")
     if estimated_range:
         min_price, max_price = map(int, estimated_range.split(','))
-    
-    state_info = st.selectbox("State:", ['select your state','ca', 'sc', 'pa', 'il', 'wi', 'az', 'or', 'mt', 'id', 'va', 'al', 'tx', 'ky', 'nc',
-                                     'co', 'wy', 'fl', 'oh', 'la', 'ga', 'mn', 'de', 'in', 'mi', 'wa', 'nm', 'nv', 'tn',
-                                     'nd', 'nj', 'ok', 'dc', 'ny', 'md', 'ms', 'mo', 'ia', 'ar', 'ks', 'me', 'ak', 'ri',
-                                     'ne', 'ct', 'vt', 'nh', 'sd', 'ma', 'wv', 'ut', 'hi'], index=0)
-    if st.button("Submit"):
-        best_car = recommend_car(min_price,max_price,state_info, df)
-        st.write(" Best available cars on that price range are :", best_car)
-    
-    st.write('---')
 
-    st.write("### Looking for similar cars:")
+    # Define the list of columns
+    columns = ['manufacturer', 'year', 'paint_color','condition', 'cylinders','state','drive']
+
+    # Ask the user to select which columns they want to fill
+    selected_columns = st.multiselect('Select Columns to Fill', columns)
+
+    # Create a dictionary to store column values
+    column_values = {}
+
+    # For each selected column, create an input field
+    for column in selected_columns:
+        value = st.text_input(f'Enter value for {column}', key=column)
+
+        # Store the value in the dictionary
+        column_values[column] = value
+
+    # Add a button to trigger processing
+    if st.button("Process Data"):
+        # Pass the column_values dictionary to the function
+        recommended_cars = recommend_func(df, min_price, max_price, **column_values)
+        if recommended_cars is not None and not recommended_cars.empty:
+            st.write("Recommended cars based on your preferences:")
+            st.write(recommended_cars)
+        else:
+            st.write("No cars found matching your criteria.")
+
 
 
     
@@ -216,7 +232,7 @@ def load_pickle(file):
         loaded_object = pickle.load(f)
     return loaded_object
 
-@st.cache_data
+
 def shap_explanation(model, X):
     explainer = shap.Explainer(model)
     shap_values = explainer.shap_values(X)
