@@ -1,2 +1,3 @@
-*.csv
-dataset/
+.venv
+__pycache__
+
