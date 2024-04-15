@@ -1,2 +1,7 @@
+.venv
+__pycache__/
 *.csv
+.ipynb_checkpoints/
+notebook/__pycache__/
+notebook/.ipynb_checkpoints/
 dataset/
