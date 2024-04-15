@@ -9,6 +9,7 @@
 
 ## Project Description
 The automotive industry, particularly the used car market, is a dynamic and competitive domain. In India, for instance, the used automobile market is predicted to increase at a compound annual growth rate (CAGR) of 15.12% from 2020 to 2025. With approximately 40 million used vehicles sold annually, effective pricing strategies are crucial for both companies and individuals to efficiently sell their products in a competitive market and make a profit. The Used Car Price Prediction Model is a machine learning project aimed at accurately predicting the price of used cars based on various factors such as mileage, make, model, year, colour and location. This project is motivated by the need for both sellers and buyers to make informed decisions about the price of used cars, given the many factors that influence a car's worth on the market.
+https://used-cars.onrender.com/
 
 ## Problem Statement
 Let’s consider purchasing a second-hand automobile. When looking for a certain model and year, you may come across an advertisement for the ideal vehicle. You're unclear if the asking price is realistic. Comparing the costs of identical automobiles may be time-consuming and inefficient. We propose software that uses basic car information to produce an acceptable asking price based on prior sales.
